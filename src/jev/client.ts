@@ -12,6 +12,9 @@ import type { JevRequest, JevResponse } from "./types";
 /** 線上版要指向自己的 Worker，建置時由 VITE_JEV_ENDPOINT 注入 */
 export const PROXY_ENDPOINT = import.meta.env.VITE_JEV_ENDPOINT || "/api/jev";
 
+/** 判定會不會經過別人架的轉發層。這會改變該對使用者說什麼，不能含糊 */
+export const usesHostedProxy = () => Boolean(import.meta.env.VITE_JEV_ENDPOINT);
+
 /** 靜態部署但沒設定 Worker 網址時，判定一定會失敗，首頁要先講清楚 */
 export const isProxyReachable = () =>
   import.meta.env.DEV || Boolean(import.meta.env.VITE_JEV_ENDPOINT);
