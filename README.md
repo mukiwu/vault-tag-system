@@ -142,3 +142,36 @@ node scripts/make-sparkle.mjs
 九個標籤共用一個 Lottie 播放器，滑到哪個就把畫布搬過去，不會開九份。播放器用的是 `lottie_light`，只支援 shape layer，比完整版小很多，但仍然讓打包後的體積增加約 50 KB（gzip）
 
 系統設定為減少動態時，位移與星芒都會關掉，只留顏色變化
+
+## 部署到線上
+
+線上版沒辦法只靠靜態網站跑起來。Jev 的 CORS 白名單不收外部網域，瀏覽器直接打它的 API 會在 preflight 就被擋掉，所以一定要有一層轉發。本機開發時這件事由 Vite dev server 代勞，線上版靠一支 Cloudflare Worker
+
+這支 Worker 刻意不保存任何金鑰。金鑰由使用者自己填、存在自己的瀏覽器，隨請求放在 `x-typesafe-key` 標頭送過來，Worker 只負責換成正式的 `Authorization` 再轉出去。所以部署的人不會替訪客付 Jev 的帳
+
+### 部署轉發層
+
+先改 `wrangler.jsonc` 裡的 `ALLOWED_ORIGINS`，把自己的 GitHub Pages 網址填進去。少了這道，這支 Worker 會變成任何人都能用的免費通道
+
+```bash
+npx wrangler login
+npx wrangler deploy
+```
+
+部署完會拿到一個 `https://<name>.<account>.workers.dev` 的網址
+
+### 接上前端
+
+到 GitHub repo 的 Settings，Secrets and variables，Actions，Variables 分頁，新增一個名為 `JEV_ENDPOINT` 的變數，值就是上面那個 Worker 網址
+
+再到 Settings，Pages，把 Source 設成 GitHub Actions。之後推到 `main` 就會自動建置與部署
+
+沒有設定 `JEV_ENDPOINT` 的話，線上版首頁會直接標明判定不可用，不會讓人填完金鑰才撞牆
+
+### 本機驗證 Worker
+
+```bash
+npx wrangler dev
+```
+
+再把 `.env.local` 的 `VITE_JEV_ENDPOINT` 指向 `http://localhost:8787`，就能用本機的 Worker 測整條路徑

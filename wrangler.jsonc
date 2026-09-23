@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "vault-tag-proxy",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-09-01",
+  "observability": { "enabled": true },
+  "vars": {
+    // 允許呼叫這支 Worker 的來源，逗號分隔。
+    // 部署後要把自己的 GitHub Pages 網址填進來，本機開發的 port 也一起列。
+    "ALLOWED_ORIGINS": "https://mukiwu.github.io,http://localhost:5174,http://localhost:5173"
+  }
+}

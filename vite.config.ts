@@ -15,6 +15,8 @@ export default defineConfig(({ mode }) => {
   const fallbackKey = env.TYPESAFE_API_KEY
 
   return {
+    // GitHub Pages 放在子路徑底下，資源連結要跟著改。本機開發維持根目錄
+    base: env.VITE_BASE || '/',
     plugins: [react()],
     server: {
       proxy: {

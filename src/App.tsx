@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { isSupported } from "./fs/directory";
+import { isProxyReachable } from "./jev/client";
 import { useStore } from "./store";
 import { ApiKeyField } from "./ui/ApiKeyField";
 import { CompatChips } from "./ui/CompatChips";
@@ -145,6 +146,18 @@ export default function App() {
 
             {/* 步驟設定區 */}
             <div className="landing-steps">
+              {!isProxyReachable() && (
+                <div className="notice">
+                  <strong>這個線上版沒辦法判定</strong>
+                  <p>
+                    Jev
+                    不接受瀏覽器直接呼叫，判定得經過一層轉發。你可以把這個專案
+                    clone 下來用 npm run dev 跑，或照 README 部署一支自己的
+                    Cloudflare Worker。 介面本身仍然可以操作
+                  </p>
+                </div>
+              )}
+
               {hasKey ? (
                 <div className="key-row">
                   <ApiKeyField />

@@ -996,3 +996,27 @@ input[type="range"] {
 .apikey input {
   width: 300px;
 }
+
+/* 線上版缺轉發層時的提示 */
+.notice {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid rgba(212, 114, 106, 0.35);
+  border-radius: 8px;
+  background: rgba(212, 114, 106, 0.08);
+}
+
+.notice strong {
+  font-size: 13px;
+  color: #e8a49d;
+  font-weight: 600;
+}
+
+.notice p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.85;
+  color: var(--muted);
+}
