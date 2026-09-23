@@ -2,9 +2,7 @@
 
 在瀏覽器裡選一個筆記 vault，用 Jev 依照你現有的標籤體系逐篇判定該不該掛上每個標籤，信心高的自動採納，其餘留給你決定，確認後才寫回 frontmatter
 
-線上版在 <https://mukiwu.github.io/vault-tag-system/>
-
-筆記不會離開這台電腦，只有裁切過的內文會送去判定
+線上版： <https://mukiwu.github.io/vault-tag-system/>
 
 https://github.com/user-attachments/assets/872e61aa-0cc6-4657-8f0a-6cd0ad30f56b
 
@@ -99,28 +97,5 @@ npx wrangler deploy
 拿到 Worker 網址後，到 GitHub repo 的 Settings，Secrets and variables，Actions，Variables 分頁新增 `JEV_ENDPOINT` 指向它，再把 Settings，Pages 的 Source 設成 GitHub Actions。之後推到 `main` 就會自動建置部署
 
 沒設定 `JEV_ENDPOINT` 的話，線上版首頁會直接標明判定不可用
-
-### 開放試用
-
-可以讓沒有金鑰的訪客先跑幾篇看看，費用由站方的金鑰支付，所以額度必須擋在 Worker 裡。前端的限制用 curl 就能繞過，不能當數
-
-三道閘門都在 `worker/index.js`
-
-- 每人每天 `TRIAL_NOTES` 篇，一篇筆記算一次請求，用 IP 的雜湊計數，不存明文
-- 全站每天 `TRIAL_DAILY_CAP` 次，用完當天關閉
-- Jev 自己出狀況時會把扣掉的額度還回去
-
-開放的步驟
-
-```bash
-# 另外開一把專用的金鑰，被濫用時才能單獨撤銷
-npx wrangler secret put TRIAL_KEY
-```
-
-再到 GitHub repo 的 Variables 新增 `TRIAL_NOTES`，值要跟 Worker 的設定一致，前端才知道該送幾篇
-
-訪客要自己按過首頁那顆免費試用才會動用額度，不會有人在不知情的狀況下花掉站方的錢
-
-計數放在 Cloudflare KV。免費方案每天 1000 次寫入，一次試用請求要寫兩筆，所以 `TRIAL_DAILY_CAP` 別超過 500
 
 本機要測整條路徑的話，跑 `npx wrangler dev`，再把 `.env.local` 的 `VITE_JEV_ENDPOINT` 指向 `http://localhost:8787`
