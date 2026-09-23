@@ -590,6 +590,29 @@ input[type="range"] {
   flex: 0 0 auto;
 }
 
+/* 側欄最底下的兩條外連，跟圖例同屬參考資訊，不跟操作按鈕混在一起 */
+.side-links {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 11px 20px;
+}
+
+.side-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.side-links a:hover {
+  color: var(--cool);
+}
+
 .sidebar .list {
   flex: 1;
   overflow: auto;

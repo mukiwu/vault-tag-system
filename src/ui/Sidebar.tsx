@@ -1,49 +1,51 @@
-import { useMemo, useState } from 'react'
-import { groupChanges } from '../core/pending'
-import { useStore } from '../store'
-import { LEGEND, nodeStyle } from './palette'
-import { DEFAULT_THRESHOLDS } from '../core/decision'
+import { useMemo, useState } from "react";
+import { groupChanges } from "../core/pending";
+import { useStore } from "../store";
+import { LEGEND, nodeStyle } from "./palette";
+import { ExternalMark, GithubMark } from "./marks";
+import { DEFAULT_THRESHOLDS } from "../core/decision";
 
 /**
  * 側欄回答兩個問題：按下寫入會動到什麼，以及做過的事情怎麼收回。
  * 廢棄與回滾是兩件不同的事，刻意分成兩顆按鈕。
  */
 export function Sidebar() {
-  const notes = useStore((s) => s.notes)
-  const runs = useStore((s) => s.runs)
-  const phase = useStore((s) => s.phase)
-  const thresholds = useStore((s) => s.thresholds)
-  const statsRevision = useStore((s) => s.statsRevision)
-  const pendingDiffs = useStore((s) => s.pendingDiffs)
-  const apply = useStore((s) => s.apply)
-  const clearDecisions = useStore((s) => s.clearDecisions)
-  const rollbackTo = useStore((s) => s.rollbackTo)
-  const revertTo = useStore((s) => s.revertTo)
+  const notes = useStore((s) => s.notes);
+  const runs = useStore((s) => s.runs);
+  const phase = useStore((s) => s.phase);
+  const thresholds = useStore((s) => s.thresholds);
+  const statsRevision = useStore((s) => s.statsRevision);
+  const pendingDiffs = useStore((s) => s.pendingDiffs);
+  const apply = useStore((s) => s.apply);
+  const clearDecisions = useStore((s) => s.clearDecisions);
+  const rollbackTo = useStore((s) => s.rollbackTo);
+  const revertTo = useStore((s) => s.revertTo);
 
   // 破壞性動作要點第二次才執行，避免手滑
-  const [confirming, setConfirming] = useState<string | null>(null)
+  const [confirming, setConfirming] = useState<string | null>(null);
 
   const titleByPath = useMemo(
     () => new Map(notes.map((note) => [note.path, note.title])),
     [notes],
-  )
+  );
 
   const { diffs, changes } = useMemo(() => {
-    const list = pendingDiffs()
-    return { diffs: list, changes: groupChanges(list, titleByPath) }
+    const list = pendingDiffs();
+    return { diffs: list, changes: groupChanges(list, titleByPath) };
     // 依賴是刻意指定的失效訊號：grid 就地更新，thresholds 由 pendingDiffs 內部讀取
-  }, [pendingDiffs, titleByPath, thresholds, statsRevision])
+  }, [pendingDiffs, titleByPath, thresholds, statsRevision]);
 
-  const busy = phase === 'applying' || phase === 'scanning' || phase === 'judging'
+  const busy =
+    phase === "applying" || phase === "scanning" || phase === "judging";
 
   const ask = (key: string, run: () => Promise<void>) => {
     if (confirming === key) {
-      setConfirming(null)
-      void run()
+      setConfirming(null);
+      void run();
     } else {
-      setConfirming(key)
+      setConfirming(key);
     }
-  }
+  };
 
   return (
     <aside className="sidebar">
@@ -60,26 +62,31 @@ export function Sidebar() {
         ) : (
           <div className="list">
             {changes.map((change) => {
-              const add = change.kind === 'add'
+              const add = change.kind === "add";
               return (
                 <div
                   key={`${change.kind}:${change.tag}`}
                   className="change"
-                  style={{ background: add ? 'var(--add-bg)' : 'var(--remove-bg)' }}
+                  style={{
+                    background: add ? "var(--add-bg)" : "var(--remove-bg)",
+                  }}
                 >
                   <span
                     className="mono sign"
-                    style={{ color: add ? 'var(--review)' : 'var(--warn)' }}
+                    style={{ color: add ? "var(--review)" : "var(--warn)" }}
                   >
-                    {add ? '+' : '−'}
+                    {add ? "+" : "−"}
                   </span>
                   <span className="tag">{change.tag}</span>
-                  <span className="sample">{change.samples.join('、')}</span>
-                  <span className="mono" style={{ color: add ? 'var(--review)' : 'var(--warn)' }}>
+                  <span className="sample">{change.samples.join("、")}</span>
+                  <span
+                    className="mono"
+                    style={{ color: add ? "var(--review)" : "var(--warn)" }}
+                  >
                     {change.count}
                   </span>
                 </div>
-              )
+              );
             })}
           </div>
         )}
@@ -112,25 +119,31 @@ export function Sidebar() {
         ) : (
           <div className="list">
             {runs.map((run) => {
-              const added = run.entries.reduce((sum, entry) => sum + entry.added.length, 0)
-              const removed = run.entries.reduce((sum, entry) => sum + entry.removed.length, 0)
+              const added = run.entries.reduce(
+                (sum, entry) => sum + entry.added.length,
+                0,
+              );
+              const removed = run.entries.reduce(
+                (sum, entry) => sum + entry.removed.length,
+                0,
+              );
               return (
                 <div key={run.id} className="entry">
                   <div className="meta">
-                    <span className="mono" style={{ color: 'var(--text)' }}>
-                      {new Date(run.at).toLocaleString('zh-TW', {
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
+                    <span className="mono" style={{ color: "var(--text)" }}>
+                      {new Date(run.at).toLocaleString("zh-TW", {
+                        month: "2-digit",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
                     </span>
                     <span className="muted">{run.entries.length} 篇</span>
                     <span className="spacer" />
-                    <span className="mono" style={{ color: 'var(--review)' }}>
+                    <span className="mono" style={{ color: "var(--review)" }}>
                       +{added}
                     </span>
-                    <span className="mono" style={{ color: 'var(--warn)' }}>
+                    <span className="mono" style={{ color: "var(--warn)" }}>
                       &minus;{removed}
                     </span>
                   </div>
@@ -138,20 +151,28 @@ export function Sidebar() {
                     <button
                       disabled={busy}
                       title="只把這次加上的標籤收回去，事後自己改的內容保留"
-                      onClick={() => ask(`revert:${run.id}`, () => revertTo(run.id))}
+                      onClick={() =>
+                        ask(`revert:${run.id}`, () => revertTo(run.id))
+                      }
                     >
-                      {confirming === `revert:${run.id}` ? '再按一次確認' : '廢棄這批標籤'}
+                      {confirming === `revert:${run.id}`
+                        ? "再按一次確認"
+                        : "廢棄這批標籤"}
                     </button>
                     <button
                       disabled={busy}
                       title="把這幾篇筆記整份還原成當時的樣子，事後的修改會一起被蓋掉"
-                      onClick={() => ask(`rollback:${run.id}`, () => rollbackTo(run.id))}
+                      onClick={() =>
+                        ask(`rollback:${run.id}`, () => rollbackTo(run.id))
+                      }
                     >
-                      {confirming === `rollback:${run.id}` ? '再按一次確認' : '回滾快照'}
+                      {confirming === `rollback:${run.id}`
+                        ? "再按一次確認"
+                        : "回滾快照"}
                     </button>
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
         )}
@@ -163,7 +184,7 @@ export function Sidebar() {
         </div>
         <div className="legend">
           {LEGEND.map((item) => {
-            const node = nodeStyle(item.cell, DEFAULT_THRESHOLDS)
+            const node = nodeStyle(item.cell, DEFAULT_THRESHOLDS);
             return (
               <div key={item.label} className="item">
                 <span className="swatch">
@@ -174,19 +195,40 @@ export function Sidebar() {
                       borderRadius: node.radius,
                       background: node.fill,
                       border: node.border,
-                      boxSizing: 'border-box',
+                      boxSizing: "border-box",
                     }}
                   />
                 </span>
                 <span className="muted">{item.label}</span>
               </div>
-            )
+            );
           })}
         </div>
         <p className="hint" style={{ marginBottom: 0 }}>
           大小與顏色都跟著信心走，形狀說明它的來歷
         </p>
       </section>
+
+      <section className="side-links">
+        <a
+          href="https://hyday.tw"
+          target="_blank"
+          rel="noreferrer"
+          title="Hyday｜AI 個人知識庫秘書"
+        >
+          <span>Hyday</span>
+          <ExternalMark />
+        </a>
+        <a
+          href="https://github.com/mukiwu/vault-tag-system"
+          target="_blank"
+          rel="noreferrer"
+          title="在 GitHub 看原始碼"
+        >
+          <GithubMark />
+          <span>原始碼</span>
+        </a>
+      </section>
     </aside>
-  )
+  );
 }
