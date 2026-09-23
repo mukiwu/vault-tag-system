@@ -6,9 +6,7 @@
 
 筆記不會離開這台電腦，只有裁切過的內文會送去判定
 
-![判定跑起來之後，結果一格一格長到矩陣上](docs/demo.gif)
-
-上面是開頭十三秒，[完整影片在這裡](docs/demo.mp4)
+https://github.com/user-attachments/assets/872e61aa-0cc6-4657-8f0a-6cd0ad30f56b
 
 ## 怎麼跑
 
