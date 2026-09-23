@@ -6,9 +6,9 @@
 
 筆記不會離開這台電腦，只有裁切過的內文會送去判定
 
-<video src="https://github.com/mukiwu/vault-tag-system/raw/main/docs/demo.mp4" controls muted loop playsinline width="100%"></video>
+![判定跑起來之後，結果一格一格長到矩陣上](docs/demo.gif)
 
-播不出來的話可以[直接開這支影片](https://github.com/mukiwu/vault-tag-system/raw/main/docs/demo.mp4)
+上面是開頭十三秒，[完整影片在這裡](docs/demo.mp4)
 
 ## 怎麼跑
 
