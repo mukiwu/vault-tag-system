@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useStore } from "../store";
+import { trialAvailable } from "../jev/client";
 
 /** 只露出尾巴，確認填對了就好，不用把整串攤在畫面上 */
 const mask = (key: string) =>
@@ -28,7 +29,11 @@ export function ApiKeyField({ compact = false }: { compact?: boolean }) {
   if (trialOptIn && apiKey === "") {
     return (
       <div className={compact ? "apikey" : "apikey block"}>
-        <input type="password" value="0000000000000000" readOnly disabled />
+        {compact ? (
+          <span className="trial-chip">免費試用中</span>
+        ) : (
+          <input type="password" value="0000000000000000" readOnly disabled />
+        )}
         <button onClick={() => setTrialMode(false)}>改用自己的金鑰</button>
       </div>
     );
@@ -75,6 +80,11 @@ export function ApiKeyField({ compact = false }: { compact?: boolean }) {
       <button className="primary" onClick={save} disabled={draft.trim() === ""}>
         儲存
       </button>
+      {compact && apiKey === "" && trialAvailable() && (
+        <button className="trial-btn" onClick={() => setTrialMode(true)}>
+          免費試用
+        </button>
+      )}
       {apiKey !== "" && <button onClick={() => setEditing(false)}>取消</button>}
     </div>
   );
