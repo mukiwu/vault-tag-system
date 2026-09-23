@@ -970,6 +970,14 @@ input[type="range"] {
   text-align: center;
 }
 
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+
 .footer-brand {
   display: inline-flex;
   align-items: center;
@@ -982,6 +990,21 @@ input[type="range"] {
 }
 
 .footer-brand:hover {
+  color: var(--cool);
+}
+
+/* 原始碼連結是次要資訊，比品牌連結退一階 */
+.footer-repo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-repo:hover {
   color: var(--cool);
 }
 
