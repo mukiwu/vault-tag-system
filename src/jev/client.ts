@@ -12,6 +12,13 @@ import type { JevRequest, JevResponse } from "./types";
 /** 線上版要指向自己的 Worker，建置時由 VITE_JEV_ENDPOINT 注入 */
 export const PROXY_ENDPOINT = import.meta.env.VITE_JEV_ENDPOINT || "/api/jev";
 
+/** 站方開放的試用篇數。0 代表沒開放，得自己填金鑰 */
+export const TRIAL_NOTES = Number(import.meta.env.VITE_TRIAL_NOTES ?? 0);
+
+/** 沒填金鑰也能跑幾篇看看 */
+export const trialAvailable = () =>
+  Boolean(import.meta.env.VITE_JEV_ENDPOINT) && TRIAL_NOTES > 0;
+
 /** 判定會不會經過別人架的轉發層。這會改變該對使用者說什麼，不能含糊 */
 export const usesHostedProxy = () => Boolean(import.meta.env.VITE_JEV_ENDPOINT);
 
@@ -36,8 +43,30 @@ export class JevError extends Error {
   }
 }
 
+/** 轉發層在標頭裡回報的試用額度 */
+export type TrialInfo = { remaining: number; limit: number };
+
+/** 額度用完也是 429，但重試只是白等，要跟真正的流量限制分開 */
+const QUOTA_ERRORS = new Set([
+  "visitor_exhausted",
+  "site_exhausted",
+  "disabled",
+]);
+
+const isQuotaExhausted = (raw: string) => {
+  try {
+    return QUOTA_ERRORS.has(
+      (JSON.parse(raw) as { error?: string }).error ?? "",
+    );
+  } catch {
+    return false;
+  }
+};
+
 export type AskOptions = {
   endpoint?: string;
+  /** 轉發層回報還剩幾篇試用額度時呼叫 */
+  onTrial?: (info: TrialInfo) => void;
   /** 使用者填的金鑰，存在瀏覽器本機 */
   apiKey?: string;
   /** 釘住版本，避免判定結果隨模型更新而漂移 */
@@ -114,6 +143,7 @@ export async function askJev(
     maxRetries = 4,
     retryDelay = defaultDelay,
     signal,
+    onTrial,
   } = options;
 
   const body = JSON.stringify({ ...request, model });
@@ -131,10 +161,23 @@ export async function askJev(
       signal,
     });
 
-    if (response.ok) return (await response.json()) as JevResponse;
+    if (response.ok) {
+      const remaining = response.headers.get("x-trial-remaining");
+      if (remaining !== null) {
+        onTrial?.({
+          remaining: Number(remaining),
+          limit: Number(response.headers.get("x-trial-limit") ?? 0),
+        });
+      }
+      return (await response.json()) as JevResponse;
+    }
 
     const raw = await response.text().catch(() => "");
     lastError = new JevError(response.status, describe(response.status, raw));
+    if (isQuotaExhausted(raw)) {
+      onTrial?.({ remaining: 0, limit: TRIAL_NOTES });
+      throw lastError;
+    }
     if (!RETRYABLE.has(response.status)) throw lastError;
 
     if (attempt < maxRetries) await sleep(retryDelay(attempt));

@@ -39,6 +39,8 @@ jobs:
           VITE_BASE: /${{ github.event.repository.name }}/
           # 在 repo 的 Settings > Variables 設定 JEV_ENDPOINT，指向自己的 Worker
           VITE_JEV_ENDPOINT: ${{ vars.JEV_ENDPOINT }}
+          # 開放試用的篇數。要跟 Worker 的 TRIAL_NOTES 一致，留空就是不開放
+          VITE_TRIAL_NOTES: ${{ vars.TRIAL_NOTES }}
         run: npm run build
 
       - uses: actions/upload-pages-artifact@v3

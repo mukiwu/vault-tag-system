@@ -1020,3 +1020,25 @@ input[type="range"] {
   line-height: 1.85;
   color: var(--muted);
 }
+
+/* 試用額度的提示 */
+.trial-note {
+  margin: 0;
+  padding: 9px 12px;
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: #9fd8c9;
+  background: rgba(95, 180, 156, 0.09);
+  border: 1px solid rgba(95, 180, 156, 0.28);
+  border-radius: 7px;
+}
+
+.trial-chip {
+  padding: 3px 9px;
+  font-size: 11px;
+  color: #9fd8c9;
+  background: rgba(95, 180, 156, 0.12);
+  border: 1px solid rgba(95, 180, 156, 0.3);
+  border-radius: 999px;
+  white-space: nowrap;
+}

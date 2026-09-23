@@ -100,4 +100,25 @@ npx wrangler deploy
 
 沒設定 `JEV_ENDPOINT` 的話，線上版首頁會直接標明判定不可用
 
+### 開放試用
+
+可以讓沒有金鑰的訪客先跑幾篇看看，費用由站方的金鑰支付，所以額度必須擋在 Worker 裡。前端的限制用 curl 就能繞過，不能當數
+
+三道閘門都在 `worker/index.js`
+
+- 每人每天 `TRIAL_NOTES` 篇，一篇筆記算一次請求，用 IP 的雜湊計數，不存明文
+- 全站每天 `TRIAL_DAILY_CAP` 次，用完當天關閉
+- Jev 自己出狀況時會把扣掉的額度還回去
+
+開放的步驟
+
+```bash
+# 另外開一把專用的金鑰，被濫用時才能單獨撤銷
+npx wrangler secret put TRIAL_KEY
+```
+
+再到 GitHub repo 的 Variables 新增 `TRIAL_NOTES`，值要跟 Worker 的設定一致，前端才知道該送幾篇
+
+計數放在 Cloudflare KV。免費方案每天 1000 次寫入，一次試用請求要寫兩筆，所以 `TRIAL_DAILY_CAP` 別超過 500
+
 本機要測整條路徑的話，跑 `npx wrangler dev`，再把 `.env.local` 的 `VITE_JEV_ENDPOINT` 指向 `http://localhost:8787`

@@ -1,6 +1,11 @@
 import { useEffect } from "react";
 import { isSupported } from "./fs/directory";
-import { isProxyReachable, usesHostedProxy } from "./jev/client";
+import {
+  TRIAL_NOTES,
+  isProxyReachable,
+  trialAvailable,
+  usesHostedProxy,
+} from "./jev/client";
 import { useStore } from "./store";
 import { ApiKeyField } from "./ui/ApiKeyField";
 import { CompatChips } from "./ui/CompatChips";
@@ -197,6 +202,12 @@ export default function App() {
                   <p className="hint">
                     {usesHostedProxy() ? COPY.costHosted : COPY.cost}
                   </p>
+                  {trialAvailable() && (
+                    <p className="trial-note">
+                      也可以先不填，直接試跑前 {TRIAL_NOTES} 篇看看。這段由本站
+                      請客，每人每天 {TRIAL_NOTES} 篇，額滿隔天重置
+                    </p>
+                  )}
                 </div>
               )}
 

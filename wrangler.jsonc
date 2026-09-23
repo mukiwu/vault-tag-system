@@ -4,9 +4,20 @@
   "main": "worker/index.js",
   "compatibility_date": "2026-09-01",
   "observability": { "enabled": true },
+
+  // 試用額度的計數器放這裡，每筆隔天到期
+  "kv_namespaces": [{ "binding": "TRIAL", "id": "169a363a516641ff80ecd260d9974cc2" }],
+
   "vars": {
-    // 允許呼叫這支 Worker 的來源，逗號分隔。
-    // 部署後要把自己的 GitHub Pages 網址填進來，本機開發的 port 也一起列。
-    "ALLOWED_ORIGINS": "https://mukiwu.github.io,http://localhost:5174,http://localhost:5173"
+    // 允許呼叫這支 Worker 的來源，逗號分隔
+    "ALLOWED_ORIGINS": "https://mukiwu.github.io,http://localhost:5174,http://localhost:5173",
+
+    // 沒填金鑰的訪客每天可以判定幾篇。一篇筆記算一次請求
+    "TRIAL_NOTES": "10",
+
+    // 全站每天總共放行幾次試用請求，用完當天就關閉。
+    // KV 免費方案每天 1000 次寫入，每次試用要寫 2 筆，所以上限別超過 500。
+    // 300 次約等於 30 人份，粗估一天台幣兩塊多
+    "TRIAL_DAILY_CAP": "300"
   }
 }
