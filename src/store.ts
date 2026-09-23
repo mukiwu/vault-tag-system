@@ -79,8 +79,11 @@ type Store = {
   lastApply: ApplyOutcome | null;
   /** 站方試用剩下幾篇，沒走試用時是 null */
   trial: TrialInfo | null;
+  /** 使用者按下免費試用，改用站方額度而不是自己的金鑰 */
+  trialOptIn: boolean;
 
   setApiKey: (key: string) => void;
+  setTrialMode: (on: boolean) => void;
   openVault: () => Promise<void>;
   restoreVault: () => Promise<void>;
   closeVault: () => Promise<void>;
@@ -198,11 +201,21 @@ export const useStore = create<Store>()((set, get) => {
     error: null,
     lastApply: null,
     trial: null,
+    trialOptIn: false,
 
     setApiKey(key) {
       const trimmed = key.trim();
       saveApiKey(trimmed);
-      set({ apiKey: trimmed, error: null });
+      // 自己填了金鑰就不該再佔用站方額度
+      set({
+        apiKey: trimmed,
+        error: null,
+        trialOptIn: trimmed === "" ? get().trialOptIn : false,
+      });
+    },
+
+    setTrialMode(on) {
+      set({ trialOptIn: on, error: null, trial: null });
     },
 
     async openVault() {
@@ -259,8 +272,8 @@ export const useStore = create<Store>()((set, get) => {
     async judge() {
       const { notes, tags, grid, model, apiKey } = get();
 
-      // 沒填金鑰時，看站方有沒有開放試用。兩者都沒有就別白跑一趟
-      const onTrial = apiKey === "" && trialAvailable();
+      // 試用要使用者自己按過那顆按鈕，不然不該默默用掉站方的額度
+      const onTrial = apiKey === "" && get().trialOptIn && trialAvailable();
       if (apiKey === "" && !onTrial) {
         set({ error: "還沒有填 Jev API key，請在上方填入之後再開始判定" });
         return;

@@ -119,6 +119,8 @@ npx wrangler secret put TRIAL_KEY
 
 再到 GitHub repo 的 Variables 新增 `TRIAL_NOTES`，值要跟 Worker 的設定一致，前端才知道該送幾篇
 
+訪客要自己按過首頁那顆免費試用才會動用額度，不會有人在不知情的狀況下花掉站方的錢
+
 計數放在 Cloudflare KV。免費方案每天 1000 次寫入，一次試用請求要寫兩筆，所以 `TRIAL_DAILY_CAP` 別超過 500
 
 本機要測整條路徑的話，跑 `npx wrangler dev`，再把 `.env.local` 的 `VITE_JEV_ENDPOINT` 指向 `http://localhost:8787`

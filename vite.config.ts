@@ -44,6 +44,8 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: 'node',
       include: ['src/**/*.test.ts'],
+      // 本機的 .env.local 會把端點指到線上 Worker，測試要驗的是預設行為
+      env: { VITE_JEV_ENDPOINT: '', VITE_TRIAL_NOTES: '' },
     },
   }
 })

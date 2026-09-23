@@ -8,6 +8,8 @@ const mask = (key: string) =>
 export function ApiKeyField({ compact = false }: { compact?: boolean }) {
   const apiKey = useStore((s) => s.apiKey);
   const setApiKey = useStore((s) => s.setApiKey);
+  const trialOptIn = useStore((s) => s.trialOptIn);
+  const setTrialMode = useStore((s) => s.setTrialMode);
 
   const [editing, setEditing] = useState(apiKey === "");
   const [draft, setDraft] = useState(apiKey);
@@ -21,6 +23,16 @@ export function ApiKeyField({ compact = false }: { compact?: boolean }) {
     setApiKey(draft);
     if (draft.trim() !== "") setEditing(false);
   };
+
+  // 試用不需要金鑰，欄位改成已就緒的樣子，真正的額度由轉發層把關
+  if (trialOptIn && apiKey === "") {
+    return (
+      <div className={compact ? "apikey" : "apikey block"}>
+        <input type="password" value="0000000000000000" readOnly disabled />
+        <button onClick={() => setTrialMode(false)}>改用自己的金鑰</button>
+      </div>
+    );
+  }
 
   if (!editing) {
     return (

@@ -1,11 +1,6 @@
 import { useEffect } from "react";
 import { isSupported } from "./fs/directory";
-import {
-  TRIAL_NOTES,
-  isProxyReachable,
-  trialAvailable,
-  usesHostedProxy,
-} from "./jev/client";
+import { TRIAL_NOTES, isProxyReachable, trialAvailable } from "./jev/client";
 import { useStore } from "./store";
 import { ApiKeyField } from "./ui/ApiKeyField";
 import { CompatChips } from "./ui/CompatChips";
@@ -40,10 +35,6 @@ function ExternalMark() {
 const COPY = {
   lede: "自動掃描筆記庫內既有的標籤，智慧辨識每篇筆記的關聯度。高把握的直接補上，不確定的留待確認，讓你輕鬆掌控知識標籤網絡。",
   why: "由 Jev AI 進行關聯度分析，每篇筆記都會給出信心分數，作為「自動套用」或「手動審核」的判斷標準。",
-  // 本機跑跟線上版的金鑰路徑不一樣，說法就不能一樣
-  cost: "費用極低（1,000 篇筆記配 50 個標籤約台幣十幾元）。金鑰僅儲存在本機瀏覽器，分析時由本機直接送往 Jev。",
-  costHosted:
-    "費用極低（1,000 篇筆記配 50 個標籤約台幣十幾元），由你自己的金鑰支付。Jev 不接受瀏覽器直接呼叫，判定會先經過本站的轉發層再送出，它不保存金鑰。想完全自己掌控，可以把專案 clone 下來跑。",
   scope:
     "相容所有 .md 檔案，只要開頭具備 YAML Front Matter（以三個減號 --- 包裹的標籤與屬性區塊，如 Hyday、Obsidian 等工具所產生）。本機優先運作，筆記全文不會上傳，僅傳送開頭摘要進行判定，無 Front Matter 的檔案將自動略過。",
   unsupported:
@@ -58,6 +49,8 @@ export default function App() {
   const lastApply = useStore((s) => s.lastApply);
   const skipped = useStore((s) => s.skipped);
   const hasKey = useStore((s) => s.apiKey !== "");
+  const trialOptIn = useStore((s) => s.trialOptIn);
+  const setTrialMode = useStore((s) => s.setTrialMode);
   const openVault = useStore((s) => s.openVault);
   const closeVault = useStore((s) => s.closeVault);
   const restoreVault = useStore((s) => s.restoreVault);
@@ -197,15 +190,19 @@ export default function App() {
                       已有帳號，取得金鑰
                       <ExternalMark />
                     </a>
+                    {trialAvailable() && !trialOptIn && (
+                      <button
+                        className="out trial-btn"
+                        onClick={() => setTrialMode(true)}
+                      >
+                        免費試用
+                      </button>
+                    )}
                   </div>
                   <ApiKeyField />
-                  <p className="hint">
-                    {usesHostedProxy() ? COPY.costHosted : COPY.cost}
-                  </p>
-                  {trialAvailable() && (
+                  {trialOptIn && (
                     <p className="trial-note">
-                      也可以先不填，直接試跑前 {TRIAL_NOTES} 篇看看。這段由本站
-                      請客，每人每天 {TRIAL_NOTES} 篇，額滿隔天重置
+                      每人每天 {TRIAL_NOTES} 篇免費試用
                     </p>
                   )}
                 </div>

@@ -1042,3 +1042,18 @@ input[type="range"] {
   border-radius: 999px;
   white-space: nowrap;
 }
+
+/* 免費試用按鈕，跟旁邊兩顆外連長得一樣但不是連結 */
+.trial-btn {
+  font-family: inherit;
+  cursor: pointer;
+  border-color: rgba(95, 180, 156, 0.4);
+  color: #9fd8c9;
+  background: rgba(95, 180, 156, 0.1);
+}
+
+.trial-btn:hover {
+  border-color: rgba(95, 180, 156, 0.7);
+  background: rgba(95, 180, 156, 0.18);
+  color: #bdf0e2;
+}
