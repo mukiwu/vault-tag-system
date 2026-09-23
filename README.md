@@ -145,6 +145,9 @@ node scripts/make-sparkle.mjs
 
 ## 部署到線上
 
+這個專案本身跑在 <https://mukiwu.github.io/vault-tag-system/>，轉發層是 `https://vault-tag-proxy.mukispace.workers.dev`。要自己架一份的話照下面走
+
+
 線上版沒辦法只靠靜態網站跑起來。Jev 的 CORS 白名單不收外部網域，瀏覽器直接打它的 API 會在 preflight 就被擋掉，所以一定要有一層轉發。本機開發時這件事由 Vite dev server 代勞，線上版靠一支 Cloudflare Worker
 
 這支 Worker 刻意不保存任何金鑰。金鑰由使用者自己填、存在自己的瀏覽器，隨請求放在 `x-typesafe-key` 標頭送過來，Worker 只負責換成正式的 `Authorization` 再轉出去。所以部署的人不會替訪客付 Jev 的帳
