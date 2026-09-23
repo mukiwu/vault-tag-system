@@ -117,7 +117,7 @@ export function Sidebar() {
               return (
                 <div key={run.id} className="entry">
                   <div className="meta">
-                    <span className="mono" style={{ color: '#a6aeb9' }}>
+                    <span className="mono" style={{ color: 'var(--text)' }}>
                       {new Date(run.at).toLocaleString('zh-TW', {
                         month: '2-digit',
                         day: '2-digit',

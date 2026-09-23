@@ -8,17 +8,28 @@ import type { Cell, Thresholds } from '../core/decision'
  * 冗餘，掃視時兩個訊號互相加強，辨色有困難時也還讀得出強弱。
  */
 
-/** 建議廢棄用固定的警示色，不跟著信心色階走 */
-export const WARN = 'rgb(212,114,106)'
+/** 建議廢棄用固定的警示色，不跟著信心色階走。整個 app 只有這一支藍 */
+export const WARN = 'oklch(0.7 0.125 218)'
 
+/** 原有維持退成中性，冷色一出現就是要注意的格子 */
+export const KEEP = 'oklch(0.6 0.014 72)'
+
+/**
+ * 色階的停駐點，OKLCH 的 L C H。
+ *
+ * 在 OKLCH 裡插值而不是 RGB：它的明度是感知均勻的，每一階看起來的亮度差才會
+ * 一致，暖色階在 RGB 空間插值會經過偏濁的中間色。
+ */
 const STOPS: [number, [number, number, number]][] = [
-  [0.0, [35, 45, 58]],
-  [0.28, [27, 58, 92]],
-  [0.52, [46, 125, 139]],
-  [0.74, [95, 180, 156]],
-  [0.9, [201, 217, 107]],
-  [1.0, [227, 197, 103]],
+  [0.0, [0.3, 0.035, 65]],
+  [0.28, [0.45, 0.078, 70]],
+  [0.52, [0.6, 0.115, 76]],
+  [0.74, [0.73, 0.145, 82]],
+  [1.0, [0.85, 0.155, 88]],
 ]
+
+const fmt = ([l, c, h]: readonly number[]) =>
+  `oklch(${l.toFixed(3)} ${c.toFixed(3)} ${h.toFixed(1)})`
 
 /** 量化到 256 階存起來，判定進行中每幀都要算上千格，插值不必重複做 */
 const CACHE = new Map<number, string>()
@@ -36,14 +47,14 @@ export function ramp(t: number): string {
       const [p0, c0] = STOPS[i - 1]
       const [p1, c1] = STOPS[i]
       const k = (clamped - p0) / (p1 - p0)
-      const mix = c0.map((v, j) => Math.round(v + (c1[j] - v) * k))
-      const color = `rgb(${mix.join(',')})`
+      const mix = c0.map((v, j) => v + (c1[j] - v) * k)
+      const color = fmt(mix)
       CACHE.set(key, color)
       return color
     }
   }
 
-  const last = `rgb(${STOPS[STOPS.length - 1][1].join(',')})`
+  const last = fmt(STOPS[STOPS.length - 1][1])
   CACHE.set(key, last)
   return last
 }
@@ -58,7 +69,7 @@ export type NodeStyle = {
   label: string
 }
 
-const MANUAL_RING = '0 0 0 1.5px rgba(197,204,214,0.55)'
+const MANUAL_RING = '0 0 0 1.5px oklch(0.9 0.014 78 / 0.55)'
 
 export function nodeStyle(cell: Cell, thresholds: Thresholds): NodeStyle {
   const current = status(cell, thresholds)
@@ -72,7 +83,7 @@ export function nodeStyle(cell: Cell, thresholds: Thresholds): NodeStyle {
         size: `${Math.round(10 + t * 5)}px`,
         radius: '0',
         fill: 'transparent',
-        border: `1.5px solid ${color}`,
+        border: `1.5px solid ${KEEP}`,
         ring,
         label: '原有，維持',
       }

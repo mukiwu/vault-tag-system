@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_THRESHOLDS } from '../core/decision'
 import type { Cell } from '../core/decision'
-import { WARN, nodeStyle, ramp } from './palette'
+import { KEEP, WARN, nodeStyle, ramp } from './palette'
 
 const T = DEFAULT_THRESHOLDS
 const cell = (over: Partial<Cell> = {}): Cell => ({ original: false, ...over })
@@ -10,7 +10,7 @@ const style = (over: Partial<Cell> = {}) => nodeStyle(cell(over), T)
 describe('ramp', () => {
   it('兩端與中間都給得出顏色', () => {
     for (const t of [0, 0.5, 1]) {
-      expect(ramp(t)).toMatch(/^rgb\(\d+,\d+,\d+\)$/)
+      expect(ramp(t)).toMatch(/^oklch\([\d.]+ [\d.]+ [\d.]+\)$/)
     }
   })
 
@@ -71,5 +71,30 @@ describe('nodeStyle', () => {
     for (const c of [{ noul: 0.96 }, { noul: 0.6 }, { original: true }, { original: true, noul: 0.02 }]) {
       expect(nodeStyle(cell(c), T).label.length).toBeGreaterThan(0)
     }
+  })
+})
+
+describe('冷暖分工', () => {
+  const th = { auto: 0.9, review: 0.4 }
+
+  it('原有維持用中性色，不跟著信心色階走', () => {
+    // 跟著色階走的話，既有標籤會跟 AI 判出來的混在同一個色系
+    const keep = nodeStyle({ original: true, noul: 0.95 }, th)
+    expect(keep.border).toContain(KEEP)
+    expect(keep.border).not.toContain(ramp(0.95))
+  })
+
+  it('建議廢棄是矩陣上唯一的冷色', () => {
+    const drop = nodeStyle({ original: true, noul: 0.05 }, th)
+    expect(drop.fill).toBe(WARN)
+    // 色階整段都是暖色，警示才是藍的
+    for (const t of [0, 0.25, 0.5, 0.75, 1]) {
+      expect(ramp(t)).not.toBe(WARN)
+    }
+  })
+
+  it('自動加上跟著色階走到最亮那一端', () => {
+    const add = nodeStyle({ original: false, noul: 0.96 }, th)
+    expect(add.fill).toBe(ramp(0.96))
   })
 })

@@ -129,7 +129,7 @@ export function Histogram() {
                 ? 'var(--auto)'
                 : t >= thresholds.review
                   ? 'var(--review)'
-                  : '#3d4855'
+                  : 'var(--none)'
             return (
               <span key={index} className="bar" style={{ height: `${height}px`, background: band }} />
             )

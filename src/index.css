@@ -1,22 +1,52 @@
 :root {
-  --bg: #12151a;
-  --panel: #1a1e25;
-  --line: #222831;
-  --line-strong: #333b45;
+  /* 底層三階，靠明度製造深度。同一支暖色相，深色才不會看起來像貼上去的 */
+  --bg: oklch(0.152 0.008 70);
+  --panel: oklch(0.188 0.01 70);
+  --raised: oklch(0.222 0.012 70);
+  --line: oklch(0.225 0.011 70);
+  --line-strong: oklch(0.268 0.014 70);
 
-  --text: #c5ccd6;
-  --text-strong: #e4e9ef;
-  --muted: #8e97a3;
-  --muted-dim: #6c747f;
+  /* 文字三階 */
+  --text-strong: oklch(0.9 0.014 78);
+  --text: oklch(0.72 0.016 74);
+  --muted: oklch(0.565 0.018 72);
+  --muted-dim: oklch(0.4 0.028 74);
 
-  --accent: #2e7d8b;
-  --accent-ink: #061014;
-  --auto: #e3c567;
-  --review: #5fb49c;
-  --warn: #d4726a;
+  /* 暖色管動作與判定。同色相拉開彩度，只有最濃那階可以填滿 */
+  --accent: oklch(0.83 0.152 86);
+  --accent-mid: oklch(0.735 0.098 80);
+  --accent-soft: oklch(0.625 0.052 78);
+  --accent-faint: oklch(0.4 0.028 74);
+  --accent-wash: oklch(0.245 0.035 76);
+  /* 實心琥珀上的字要夠暗才讀得到 */
+  --accent-ink: oklch(0.152 0.008 70);
 
-  --add-bg: #14262b;
-  --remove-bg: #2a1b1a;
+  /* 冷色管狀態與資訊。跟矩陣的建議廢棄同一支色相，整個 app 只有一種藍 */
+  --cool: oklch(0.72 0.115 218);
+  --cool-mid: oklch(0.625 0.085 218);
+  --cool-soft: oklch(0.515 0.055 218);
+  --cool-wash: oklch(0.252 0.03 218);
+
+  /* 矩陣語意 */
+  --auto: oklch(0.83 0.152 86);
+  --review: oklch(0.615 0.112 76);
+  /* 原有維持刻意退成中性，藍只留給建議廢棄 */
+  --keep: oklch(0.6 0.014 72);
+  --warn: oklch(0.7 0.125 218);
+  /*
+   * 只用在分布圖低於審核門檻的那一段。三段同色相，全靠明度分界，
+   * 所以這一階不能太暗，不然資料最集中的地方反而看不出形狀
+   */
+  --none: oklch(0.42 0.018 72);
+
+  /* 出錯仍然用紅，那是不必學就懂的語意 */
+  --error: oklch(0.68 0.145 30);
+  --error-wash: oklch(0.24 0.04 32);
+  --error-line: oklch(0.36 0.07 32);
+
+  /* 待寫入：加標籤是動作用暖色，移除跟建議廢棄同語意用冷色 */
+  --add-bg: oklch(0.245 0.035 76);
+  --remove-bg: oklch(0.252 0.03 218);
 
   --cell-w: 25px;
   --cell-h: 22px;
@@ -88,9 +118,25 @@ button.primary {
 }
 
 button.primary:hover:not(:disabled) {
-  background: #3b96a6;
-  border-color: #3b96a6;
+  background: var(--accent-mid);
+  border-color: var(--accent-mid);
   color: var(--accent-ink);
+}
+
+/*
+ * 一頁只留一個實心琥珀，不然兩個同等強度的按鈕會互相抵銷。
+ * 金鑰的儲存是區塊內的確認，退成框線就好，實心留給真正要往前走的那一步
+ */
+.apikey button.primary {
+  background: transparent;
+  border-color: var(--accent-soft);
+  color: var(--accent-mid);
+}
+
+.apikey button.primary:hover:not(:disabled) {
+  background: var(--accent-wash);
+  border-color: var(--accent-mid);
+  color: var(--accent);
 }
 
 input[type="password"],
@@ -158,9 +204,9 @@ input[type="range"] {
 .error {
   flex-shrink: 0;
   padding: 8px 24px;
-  background: #2f1d1c;
-  color: #f0b5ae;
-  border-top: 1px solid #4a2b28;
+  background: var(--error-wash);
+  color: var(--error);
+  border-top: 1px solid var(--error-line);
 }
 
 .folders {
@@ -226,7 +272,7 @@ input[type="range"] {
 }
 
 .tree-row:hover {
-  background: #232a33;
+  background: var(--raised);
 }
 
 .twist {
@@ -360,7 +406,7 @@ input[type="range"] {
 }
 
 .head-cell:hover {
-  background: #1e232b;
+  background: var(--raised);
 }
 
 .head-cell:hover span {
@@ -400,7 +446,7 @@ input[type="range"] {
 .row-head .title {
   overflow: hidden;
   text-overflow: ellipsis;
-  color: #a6aeb9;
+  color: var(--text);
 }
 
 /* 一格畫一段十字線，格子相鄰就連成經緯 */
@@ -433,7 +479,7 @@ input[type="range"] {
 }
 
 .cell:hover {
-  background-color: #1d232b;
+  background-color: var(--raised);
 }
 
 .cell .node {
@@ -521,7 +567,7 @@ input[type="range"] {
 }
 
 .sidebar section + section {
-  border-top: 1px solid #262c34;
+  border-top: 1px solid var(--line);
 }
 
 .sidebar .pending,
@@ -599,7 +645,7 @@ input[type="range"] {
 }
 
 .entry {
-  border: 1px solid #262c34;
+  border: 1px solid var(--line);
   padding: 10px 12px;
   margin-bottom: 8px;
 }
@@ -658,10 +704,10 @@ input[type="range"] {
   background:
     radial-gradient(
       circle at 50% -10%,
-      rgba(46, 125, 139, 0.18) 0%,
-      rgba(18, 21, 26, 0) 70%
+      oklch(0.83 0.152 86 / 0.14) 0%,
+      oklch(0.152 0.008 70 / 0) 70%
     ),
-    linear-gradient(to bottom, #14171d, var(--bg));
+    linear-gradient(to bottom, var(--panel), var(--bg));
   position: relative;
 }
 
@@ -690,9 +736,9 @@ input[type="range"] {
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.03em;
-  background: rgba(46, 125, 139, 0.15);
-  border: 1px solid rgba(46, 125, 139, 0.35);
-  color: #78ccd9;
+  background: var(--cool-wash);
+  border: 1px solid var(--cool-soft);
+  color: var(--cool);
 }
 
 .landing-badge .dot {
@@ -726,8 +772,8 @@ input[type="range"] {
   flex-direction: column;
   gap: 8px;
   padding: 12px 16px;
-  background: rgba(26, 30, 37, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 8px;
 }
 
@@ -763,8 +809,8 @@ input[type="range"] {
   font-size: 11px;
   padding: 4px 10px;
   border-radius: 4px;
-  background: #14181f;
-  color: #a4afbd;
+  background: var(--raised);
+  color: var(--muted);
   border: 1px solid var(--line);
   text-decoration: none !important;
   cursor: pointer;
@@ -778,43 +824,43 @@ input[type="range"] {
 
 .chip:hover,
 .chip:focus-visible {
-  border-color: var(--accent);
+  border-color: var(--cool-soft);
   color: var(--text-strong);
-  background: #1a2029;
+  background: var(--raised);
   transform: translateY(-1.5px);
   text-decoration: none !important;
   box-shadow:
-    0 5px 18px -8px rgba(46, 125, 139, 0.75),
-    0 0 20px -10px rgba(143, 220, 232, 0.6);
+    0 5px 18px -8px oklch(0.72 0.115 218 / 0.55),
+    0 0 20px -10px oklch(0.72 0.115 218 / 0.45);
 }
 
 .chip.highlight {
-  background: rgba(46, 125, 139, 0.15);
-  color: #8edce8;
-  border-color: rgba(46, 125, 139, 0.4);
+  background: var(--cool-wash);
+  color: var(--cool);
+  border-color: var(--cool-soft);
   font-weight: 500;
 }
 
 .chip.highlight:hover,
 .chip.highlight:focus-visible {
-  border-color: #55b7c7;
-  background: rgba(46, 125, 139, 0.3);
-  color: #bdf2fb;
+  border-color: var(--cool-soft);
+  background: var(--cool-wash);
+  color: var(--cool);
   box-shadow:
-    0 6px 22px -8px rgba(85, 183, 199, 0.85),
-    0 0 26px -8px rgba(143, 220, 232, 0.7);
+    0 6px 22px -8px oklch(0.72 0.115 218 / 0.6),
+    0 0 26px -8px oklch(0.72 0.115 218 / 0.5);
 }
 
 .chip.plain {
   cursor: default;
-  background: #111419;
+  background: var(--bg);
   border-style: dashed;
   color: var(--muted-dim);
 }
 
 .chip.plain:hover {
   border-color: var(--line-strong);
-  background: #141920;
+  background: var(--raised);
   color: var(--muted);
   transform: translateY(-1px);
   box-shadow: none;
@@ -881,9 +927,9 @@ input[type="range"] {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: rgba(46, 125, 139, 0.2);
-  border: 1px solid var(--accent);
-  color: #8edce8;
+  background: var(--raised);
+  border: 1px solid var(--accent-faint);
+  color: var(--accent-mid);
   font-size: 12px;
   font-weight: 700;
   display: flex;
@@ -935,7 +981,7 @@ input[type="range"] {
 }
 
 .footer-brand:hover {
-  color: #8edce8;
+  color: var(--cool);
 }
 
 .footer-meta {
@@ -962,7 +1008,7 @@ input[type="range"] {
 }
 
 .out:hover {
-  border-color: var(--accent);
+  border-color: var(--cool-soft);
   color: var(--text-strong);
   background: var(--panel);
 }
@@ -1003,14 +1049,14 @@ input[type="range"] {
   flex-direction: column;
   gap: 6px;
   padding: 14px 16px;
-  border: 1px solid rgba(212, 114, 106, 0.35);
+  border: 1px solid var(--error-line);
   border-radius: 8px;
-  background: rgba(212, 114, 106, 0.08);
+  background: var(--error-wash);
 }
 
 .notice strong {
   font-size: 13px;
-  color: #e8a49d;
+  color: var(--error);
   font-weight: 600;
 }
 
@@ -1027,33 +1073,35 @@ input[type="range"] {
   padding: 9px 12px;
   font-size: 12.5px;
   line-height: 1.8;
-  color: #9fd8c9;
-  background: rgba(95, 180, 156, 0.09);
-  border: 1px solid rgba(95, 180, 156, 0.28);
+  color: var(--cool);
+  background: var(--cool-wash);
+  border: 1px solid var(--cool-soft);
   border-radius: 7px;
 }
 
 .trial-chip {
   padding: 3px 9px;
   font-size: 11px;
-  color: #9fd8c9;
-  background: rgba(95, 180, 156, 0.12);
-  border: 1px solid rgba(95, 180, 156, 0.3);
+  color: var(--cool);
+  background: var(--cool-wash);
+  border: 1px solid var(--cool-soft);
   border-radius: 999px;
   white-space: nowrap;
 }
 
-/* 免費試用按鈕，跟旁邊兩顆外連長得一樣但不是連結 */
+/*
+ * 免費試用是動作不是狀態，所以走暖色。但不填滿，實心只留給主按鈕
+ */
 .trial-btn {
   font-family: inherit;
   cursor: pointer;
-  border-color: rgba(95, 180, 156, 0.4);
-  color: #9fd8c9;
-  background: rgba(95, 180, 156, 0.1);
+  border-color: var(--accent-soft);
+  color: var(--accent-mid);
+  background: var(--raised);
 }
 
 .trial-btn:hover {
-  border-color: rgba(95, 180, 156, 0.7);
-  background: rgba(95, 180, 156, 0.18);
-  color: #bdf0e2;
+  border-color: var(--accent-mid);
+  background: var(--accent-wash);
+  color: var(--accent);
 }
