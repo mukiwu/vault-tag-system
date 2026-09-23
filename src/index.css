@@ -186,6 +186,7 @@ input[type="range"] {
   font-weight: 600;
   color: var(--text-strong);
   margin: 0;
+  white-space: nowrap;
 }
 
 .spacer {

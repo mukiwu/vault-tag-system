@@ -79,7 +79,7 @@ export default function App() {
     <div className="app">
       {grid && (
         <div className="bar">
-          <h1>標籤織圖</h1>
+          <h1>筆記標籤自動補全</h1>
           {vaultName && <span className="muted">{vaultName}</span>}
           {skipped.noFrontmatter > 0 && (
             <span
