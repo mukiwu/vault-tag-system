@@ -9,6 +9,7 @@ import { FolderFilter } from "./ui/FolderFilter";
 import { Histogram } from "./ui/Histogram";
 import { Matrix } from "./ui/Matrix";
 import { Sidebar } from "./ui/Sidebar";
+import { StatusBar } from "./ui/StatusBar";
 import { Toolbar } from "./ui/Toolbar";
 
 /** 讓外連看得出來會離開這一頁 */
@@ -100,6 +101,7 @@ export default function App() {
         <div className="main">
           <div className="field">
             <Matrix />
+            <StatusBar />
             <Histogram />
           </div>
           <Sidebar />

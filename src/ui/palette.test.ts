@@ -56,6 +56,15 @@ describe('nodeStyle', () => {
     expect(s.fill).toBe(WARN)
   })
 
+  it('人工移除畫成空心方框加叉，跟還沒決定的建議廢棄分得開', () => {
+    const suggested = style({ original: true, noul: 0.05 })
+    const dropped = style({ original: true, noul: 0.05, override: false })
+    expect(dropped.fill).toBe('transparent')
+    expect(dropped.border).toContain(WARN)
+    expect(dropped.cross).toBe(true)
+    expect(suggested.cross).toBe(false)
+  })
+
   it('人工決定過的加一圈外環，跟自動判定分得開', () => {
     expect(style({ noul: 0.6, override: true }).ring).not.toBe('none')
     expect(style({ original: true, noul: 0.95, override: false }).ring).not.toBe('none')

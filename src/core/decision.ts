@@ -79,6 +79,19 @@ export function status(cell: Cell, thresholds: Thresholds): Status {
   return 'none'
 }
 
+/**
+ * 單格點擊之後的下一個人工決定。
+ *
+ * 第一下一律把寫入結果翻過來，所以建議廢棄點下去就是移除、待審核點下去就是採納，
+ * 照著 AI 的提示走；第二下反過來，第三下回到未決定。
+ */
+export function nextOverride(cell: Cell, thresholds: Thresholds): boolean | undefined {
+  const base = desired({ ...cell, override: undefined }, thresholds)
+  if (cell.override === undefined) return !base
+  if (cell.override !== base) return base
+  return undefined
+}
+
 /** 是否還在等人決定 */
 export function isPending(cell: Cell, thresholds: Thresholds): boolean {
   const current = status(cell, thresholds)

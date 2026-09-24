@@ -3,6 +3,8 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { status } from '../core/decision'
 import { cellAt } from '../core/grid'
 import { useStore } from '../store'
+import { describeCell } from './describe'
+import { Node } from './Node'
 import { nodeStyle } from './palette'
 
 /** 這些數字要和 index.css 的 --cell-w 等變數對得上 */
@@ -16,6 +18,7 @@ export function Matrix() {
   const thresholds = useStore((s) => s.thresholds)
   const toggle = useStore((s) => s.toggle)
   const decideColumn = useStore((s) => s.decideColumn)
+  const setHovered = useStore((s) => s.setHovered)
   // grid 是就地更新的，靠 revision 觸發重繪
   useStore((s) => s.revision)
 
@@ -55,7 +58,7 @@ export function Matrix() {
   }
 
   return (
-    <div className="matrix" ref={parentRef}>
+    <div className="matrix" ref={parentRef} onMouseLeave={() => setHovered(null)}>
       <div className="matrix-inner" style={{ width, height: rows.getTotalSize() }}>
         <div className="head-row" style={{ width }}>
           <div className="corner">
@@ -85,28 +88,20 @@ export function Matrix() {
               {visibleColumns.map((column) => {
                 const cell = cellAt(grid, row.index, column.index)
                 const node = nodeStyle(cell, thresholds)
-                const score = cell.noul === undefined ? '未判定' : cell.noul.toFixed(2)
+                const reading = describeCell(cell, thresholds)
                 const tag = grid.tags[column.index]
+                const here = { row: row.index, column: column.index }
                 return (
                   <button
                     key={column.key}
                     className="cell"
                     style={{ left: column.start }}
-                    aria-label={`${note.title}　${tag}　${node.label}　信心 ${score}`}
-                    title={`${note.title}　${tag}\n${node.label}　信心 ${score}`}
+                    aria-label={`${note.title}　${tag}　${reading.label}　${reading.score}　寫入時${reading.outcome}　點一下${reading.next}`}
                     onClick={() => toggle(row.index, column.index)}
+                    onMouseEnter={() => setHovered(here)}
+                    onFocus={() => setHovered(here)}
                   >
-                    <span
-                      className="node"
-                      style={{
-                        width: node.size,
-                        height: node.size,
-                        borderRadius: node.radius,
-                        background: node.fill,
-                        border: node.border,
-                        boxShadow: node.ring,
-                      }}
-                    />
+                    <Node node={node} className="node" />
                   </button>
                 )
               })}

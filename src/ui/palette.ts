@@ -67,6 +67,8 @@ export type NodeStyle = {
   /** 人工決定過的外環，跟自動判定區分 */
   ring: string
   label: string
+  /** 人工移除在方框裡畫一個叉，跟還沒決定的建議廢棄分開 */
+  cross: boolean
 }
 
 const MANUAL_RING = '0 0 0 1.5px oklch(0.9 0.014 78 / 0.55)'
@@ -85,14 +87,23 @@ export function nodeStyle(cell: Cell, thresholds: Thresholds): NodeStyle {
         fill: 'transparent',
         border: `1.5px solid ${KEEP}`,
         ring,
-        label: '原有，維持',
+        label: cell.override === undefined ? '原有，維持' : '人工保留',
+        cross: false,
       }
 
     case 'suggest-drop':
-      return { size: '13px', radius: '0', fill: WARN, border: '0', ring, label: '建議廢棄' }
+      return { size: '13px', radius: '0', fill: WARN, border: '0', ring, label: '建議廢棄', cross: false }
 
     case 'drop':
-      return { size: '13px', radius: '0', fill: WARN, border: '0', ring, label: '人工移除' }
+      return {
+        size: '14px',
+        radius: '0',
+        fill: 'transparent',
+        border: `1.5px solid ${WARN}`,
+        ring,
+        label: '人工移除',
+        cross: true,
+      }
 
     case 'add':
       return {
@@ -102,6 +113,7 @@ export function nodeStyle(cell: Cell, thresholds: Thresholds): NodeStyle {
         border: '0',
         ring,
         label: '自動加上',
+        cross: false,
       }
 
     case 'manual-add':
@@ -112,6 +124,7 @@ export function nodeStyle(cell: Cell, thresholds: Thresholds): NodeStyle {
         border: '0',
         ring,
         label: '人工加上',
+        cross: false,
       }
 
     case 'review':
@@ -122,6 +135,7 @@ export function nodeStyle(cell: Cell, thresholds: Thresholds): NodeStyle {
         border: `1.5px dashed ${color}`,
         ring,
         label: '待審核',
+        cross: false,
       }
 
     default:
@@ -131,7 +145,8 @@ export function nodeStyle(cell: Cell, thresholds: Thresholds): NodeStyle {
         fill: color,
         border: '0',
         ring,
-        label: '不加',
+        label: cell.override === undefined ? '不加' : '人工退回',
+        cross: false,
       }
   }
 }
@@ -142,5 +157,6 @@ export const LEGEND: { label: string; cell: Cell }[] = [
   { label: '待審核', cell: { original: false, noul: 0.6 } },
   { label: '原有，維持', cell: { original: true, noul: 0.95 } },
   { label: '建議廢棄', cell: { original: true, noul: 0.05 } },
+  { label: '人工移除', cell: { original: true, noul: 0.05, override: false } },
   { label: '不加', cell: { original: false, noul: 0.08 } },
 ]

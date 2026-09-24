@@ -62,9 +62,18 @@ export function Toolbar() {
           <span style={{ color: "var(--auto)" }}>
             自動 {counts.add + counts["manual-add"]}
           </span>
-          <span style={{ color: "var(--review)" }}>待審 {counts.pending}</span>
-          <span style={{ color: "var(--warn)" }}>
-            廢棄 {counts["suggest-drop"] + counts.drop}
+          <span style={{ color: "var(--review)" }}>待審 {counts.review}</span>
+          <span
+            style={{ color: "var(--warn)" }}
+            title="AI 建議拿掉、你還沒決定的既有標籤，不處理的話寫入時會保留"
+          >
+            建議廢棄 {counts["suggest-drop"]}
+          </span>
+          <span
+            style={{ color: "var(--warn)" }}
+            title="你決定移除的既有標籤，寫入時會拿掉"
+          >
+            將移除 {counts.drop}
           </span>
         </div>
       )}

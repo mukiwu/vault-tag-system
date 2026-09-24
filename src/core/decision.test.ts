@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_THRESHOLDS, band, desiredTags, isPending, status } from './decision'
+import { DEFAULT_THRESHOLDS, band, desiredTags, isPending, nextOverride, status } from './decision'
 import type { Cell } from './decision'
 
 const T = DEFAULT_THRESHOLDS // { auto: 0.9, review: 0.4 }
@@ -110,5 +110,38 @@ describe('desiredTags', () => {
 
   it('沒有對應格子的標籤視為維持原狀', () => {
     expect(desiredTags(['投資'], new Map(), T)).toEqual([])
+  })
+})
+
+describe('nextOverride', () => {
+  /** 從未決定開始連點三下，每一下之後的 override */
+  const cycle = (start: Cell) => {
+    const seen: (boolean | undefined)[] = []
+    let current = start
+    for (let i = 0; i < 3; i += 1) {
+      const next = nextOverride(current, T)
+      seen.push(next)
+      current = { ...current, override: next }
+    }
+    return seen
+  }
+
+  it('建議廢棄的第一下就是照建議移除，再來保留，第三下回到未決定', () => {
+    expect(cycle(cell({ original: true, noul: 0.05 }))).toEqual([false, true, undefined])
+  })
+
+  it('待審核的第一下是採納，再來退回，第三下回到未決定', () => {
+    expect(cycle(cell({ noul: 0.6 }))).toEqual([true, false, undefined])
+  })
+
+  it('已經自動決定的格子，第一下就是翻轉結果', () => {
+    expect(cycle(cell({ noul: 0.96 }))).toEqual([false, true, undefined])
+    expect(cycle(cell({ original: true, noul: 0.95 }))).toEqual([false, true, undefined])
+    expect(cycle(cell({ noul: 0.05 }))).toEqual([true, false, undefined])
+  })
+
+  it('還沒判定的格子照原本有沒有來翻', () => {
+    expect(nextOverride(cell({ original: true }), T)).toBe(false)
+    expect(nextOverride(cell(), T)).toBe(true)
   })
 })

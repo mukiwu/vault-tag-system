@@ -67,16 +67,28 @@ describe('setOverride 與 toggleCell', () => {
     expect(cellAt(grid, 1, 0).override).toBeUndefined()
   })
 
-  it('單格點擊在採納與退回之間切換，第三次回到未決定', () => {
+  it('待審核的格子點擊在採納與退回之間切換，第三次回到未決定', () => {
     const grid = fresh()
     applyVerdicts(grid, [{ path: 'b.md', noulByTag: new Map([['投資', 0.6]]) }])
 
-    toggleCell(grid, 1, 0)
+    toggleCell(grid, 1, 0, T)
     expect(cellAt(grid, 1, 0).override).toBe(true)
-    toggleCell(grid, 1, 0)
+    toggleCell(grid, 1, 0, T)
     expect(cellAt(grid, 1, 0).override).toBe(false)
-    toggleCell(grid, 1, 0)
+    toggleCell(grid, 1, 0, T)
     expect(cellAt(grid, 1, 0).override).toBeUndefined()
+  })
+
+  it('建議廢棄的格子點第一下就是移除', () => {
+    const grid = fresh()
+    applyVerdicts(grid, [{ path: 'a.md', noulByTag: new Map([['投資', 0.05]]) }])
+
+    toggleCell(grid, 0, 0, T)
+    expect(cellAt(grid, 0, 0).override).toBe(false)
+    toggleCell(grid, 0, 0, T)
+    expect(cellAt(grid, 0, 0).override).toBe(true)
+    toggleCell(grid, 0, 0, T)
+    expect(cellAt(grid, 0, 0).override).toBeUndefined()
   })
 })
 

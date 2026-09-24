@@ -67,6 +67,8 @@ type Store = {
   /** 統計、待寫入、分布圖用的節奏，判定進行中刻意比 revision 慢 */
   statsRevision: number;
   thresholds: Thresholds;
+  /** 游標或焦點停在哪一格，給狀態列讀；矩陣本身不訂閱，免得滑一下整張重畫 */
+  hovered: { row: number; column: number } | null;
   /** 使用次數低於此值的零星標籤不納入判定 */
   minTagCount: number;
   model: string;
@@ -94,6 +96,7 @@ type Store = {
   toggleFolder: (folder: string) => void;
   setExcludedFolders: (folders: string[]) => void;
   toggle: (row: number, column: number) => void;
+  setHovered: (cell: { row: number; column: number } | null) => void;
   decideColumn: (column: number, value: boolean) => void;
   decideBand: (value: boolean) => void;
   clearDecisions: () => void;
@@ -192,6 +195,7 @@ export const useStore = create<Store>()((set, get) => {
     revision: 0,
     statsRevision: 0,
     thresholds: DEFAULT_THRESHOLDS,
+    hovered: null,
     minTagCount: 2,
     model: "jev-latest",
     apiKey: loadApiKey(),
@@ -389,10 +393,14 @@ export const useStore = create<Store>()((set, get) => {
     },
 
     toggle(row, column) {
-      const { grid } = get();
+      const { grid, thresholds } = get();
       if (!grid) return;
-      toggleCell(grid, row, column);
+      toggleCell(grid, row, column, thresholds);
       bump();
+    },
+
+    setHovered(cell) {
+      set({ hovered: cell });
     },
 
     decideColumn(column, value) {

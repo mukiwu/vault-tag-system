@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
+import { summarize } from "../core/grid";
 import { groupChanges } from "../core/pending";
 import { useStore } from "../store";
 import { LEGEND, nodeStyle } from "./palette";
+import { Node } from "./Node";
 import { ExternalMark, GithubMark } from "./marks";
 import { DEFAULT_THRESHOLDS } from "../core/decision";
 
@@ -16,6 +18,7 @@ export function Sidebar() {
   const thresholds = useStore((s) => s.thresholds);
   const statsRevision = useStore((s) => s.statsRevision);
   const pendingDiffs = useStore((s) => s.pendingDiffs);
+  const grid = useStore((s) => s.grid);
   const apply = useStore((s) => s.apply);
   const clearDecisions = useStore((s) => s.clearDecisions);
   const rollbackTo = useStore((s) => s.rollbackTo);
@@ -34,6 +37,13 @@ export function Sidebar() {
     return { diffs: list, changes: groupChanges(list, titleByPath) };
     // 依賴是刻意指定的失效訊號：grid 就地更新，thresholds 由 pendingDiffs 內部讀取
   }, [pendingDiffs, titleByPath, thresholds, statsRevision]);
+
+  // 建議廢棄沒人決定就會照原樣保留，不會出現在待寫入，要另外提醒
+  const undecidedDrops = useMemo(
+    () => (grid ? summarize(grid, thresholds)["suggest-drop"] : 0),
+    // 依賴是刻意指定的失效訊號，理由同上
+    [grid, thresholds, statsRevision],
+  );
 
   const busy =
     phase === "applying" || phase === "scanning" || phase === "judging";
@@ -54,6 +64,21 @@ export function Sidebar() {
           <h2>待寫入</h2>
           <span className="mono muted">{diffs.length} 篇異動</span>
         </div>
+
+        {undecidedDrops > 0 && (
+          <div className="undecided">
+            <Node
+              node={{
+                ...nodeStyle({ original: true, noul: 0 }, DEFAULT_THRESHOLDS),
+                size: "9px",
+              }}
+            />
+            <span>
+              還有 <span className="mono count">{undecidedDrops}</span>{" "}
+              個建議廢棄沒決定，寫入時會保留
+            </span>
+          </div>
+        )}
 
         {changes.length === 0 ? (
           <p className="hint" style={{ margin: 0 }}>
@@ -188,16 +213,7 @@ export function Sidebar() {
             return (
               <div key={item.label} className="item">
                 <span className="swatch">
-                  <span
-                    style={{
-                      width: node.size,
-                      height: node.size,
-                      borderRadius: node.radius,
-                      background: node.fill,
-                      border: node.border,
-                      boxSizing: "border-box",
-                    }}
-                  />
+                  <Node node={{ ...node, ring: "none" }} />
                 </span>
                 <span className="muted">{item.label}</span>
               </div>
@@ -205,7 +221,7 @@ export function Sidebar() {
           })}
         </div>
         <p className="hint" style={{ marginBottom: 0 }}>
-          大小與顏色都跟著信心走，形狀說明它的來歷
+          大小與顏色都跟著信心走，形狀說明它的來歷。外環代表你手動決定過
         </p>
       </section>
 

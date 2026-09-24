@@ -1,4 +1,4 @@
-import { band, isPending, status } from './decision'
+import { band, isPending, nextOverride, status } from './decision'
 import type { Cell, Status, Thresholds } from './decision'
 import type { Note } from './vault'
 
@@ -91,10 +91,9 @@ export function setOverride(
   else grid.overrides.set(index, value)
 }
 
-/** 單格點擊：未決定到採納，採納到退回，再點一次回到未決定 */
-export function toggleCell(grid: Grid, row: number, column: number): void {
-  const current = grid.overrides.get(offset(grid, row, column))
-  setOverride(grid, row, column, current === undefined ? true : current ? false : undefined)
+/** 單格點擊，順序見 nextOverride */
+export function toggleCell(grid: Grid, row: number, column: number, thresholds: Thresholds): void {
+  setOverride(grid, row, column, nextOverride(cellAt(grid, row, column), thresholds))
 }
 
 /** 整欄一次決定，已經自動採納或明確排除的格子不需要動 */
